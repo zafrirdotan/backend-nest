@@ -1,0 +1,28 @@
+{
+    "openai": {
+        "name": "Coffee Plugin",
+        "version": "1.0.0",
+        "endpoints": [
+            {
+                "path": "/plugin/coffee-list",
+                "methods": [
+                    "GET"
+                ],
+                "handler": "getCoffee",
+                "description": "Returns a list of available coffee.",
+                "responses": [
+                    {
+                        "status": 200,
+                        "description": "Successful response",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
