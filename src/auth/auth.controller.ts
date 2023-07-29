@@ -57,4 +57,11 @@ export class AuthController {
     res.send({ status: 'created' });
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('logout')
+  logout(@Res() res) {
+    res.clearCookie('token');
+    res.send({ status: 'ok' });
+  }
+
 }
