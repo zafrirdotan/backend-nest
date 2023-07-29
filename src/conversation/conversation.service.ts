@@ -50,7 +50,7 @@ export class ConversationService {
     async chatCompletionStreaming(completionMessage: ChatCompletionRequestMessage[]): Promise<IncomingMessage> {
         // Note: you should replace 'prompt' and 'max_tokens' with your actual values.
         const completion = await this.getOpenAI().createChatCompletion({
-            model: "gpt-3.5-turbo-0301",
+            model: "gpt-3.5-turbo-0613",
             messages: completionMessage,
             temperature: 0.9,
             // max_tokens: 200,
