@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
 import { TempUser } from './temp-user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -23,19 +25,21 @@ export class UsersService {
 
     readonly tempUsers: TempUser[] = [];
 
-    findOneByEmail(email: string): User | undefined {
-        return this.users.find(user => user.email === email);
+    constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
+
+    async create(user: User): Promise<string> {
+        const newUser = new this.userModel(user);
+        const res = await newUser.save();
+        return res.id;
     }
 
-    createTempUser(tempUserId: string): TempUser {
-        const newTempUser: TempUser = { tempUserId, createdAt: +new Date(), massagesCount: 1 };
-        this.tempUsers.push(newTempUser);
-        return newTempUser
+    findOneByEmail(email: string): Promise<User> {
+        return this.userModel.findOne({ email: email });
     }
 
-    getTempUserAndAddOne(tempUserId: string): TempUser | undefined {
-        const tempUser = this.tempUsers.find(user => user.tempUserId === tempUserId);
-        tempUser.massagesCount = tempUser.massagesCount + 1;
-        return tempUser;
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().exec();
     }
+
+
 }

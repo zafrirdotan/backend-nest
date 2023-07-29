@@ -9,10 +9,10 @@ export class AuthService {
 
     constructor(private usersService: UsersService, private jwtService: JwtService) { }
 
-    validateUser(email: string): User | undefined {
+    async validateUser(email: string): Promise<User | undefined> {
         console.log('validateUser:', email);
 
-        const user = this.usersService.findOneByEmail(email);
+        const user = await this.usersService.findOneByEmail(email);
         console.log('user:', user);
 
         if (!user) {
@@ -43,7 +43,7 @@ export class AuthService {
         }
     }
 
-    getUserFromToken(token: string): User | undefined {
+    async getUserFromToken(token: string): Promise<User | undefined> {
         try {
             if (this.jwtService.verify(token)) {
                 return;
@@ -54,6 +54,6 @@ export class AuthService {
         }
 
         const payload = this.jwtService.decode(token);
-        return this.validateUser(payload['email']);
+        return await this.validateUser(payload['email']);
     }
 }

@@ -19,7 +19,7 @@ import { JwtAllow3FirstStrategy } from './jwt-allow-3-first.strategy';
     }),
   }),],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, MagicLoginStrategy, JwtStrategy, JwtAllow3FirstStrategy, MailerService],
+  providers: [AuthService, MagicLoginStrategy, JwtStrategy, JwtAllow3FirstStrategy, MailerService],
   exports: [AuthService]
 })
 export class AuthModule { }

@@ -7,7 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ConversationController],
-  providers: [ConversationService, UsersService],
-  imports: [UsersModule, AuthModule],
+  providers: [ConversationService],
+  imports: [AuthModule],
 })
 export class ConversationModule { }

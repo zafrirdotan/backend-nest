@@ -28,9 +28,9 @@ export class AuthController {
   }
 
   @Get('is-logged-in')
-  isLoggedIn(@Req() req: Request) {
+  async isLoggedIn(@Req() req: Request) {
     if (req?.cookies?.token?.access_token?.length) {
-      const user: User = this.authService.getUserFromToken(req.cookies.token.access_token);
+      const user: User = await this.authService.getUserFromToken(req.cookies.token.access_token);
 
       if (user) {
         return { isLoggedIn: true, user };
