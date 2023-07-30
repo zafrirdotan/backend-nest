@@ -8,10 +8,10 @@ export class UsersController {
     constructor(private userService: UsersService) { }
 
     @Post('create')
-    async create(@Body() body: User): Promise<string> {
+    async create(@Body() body: User): Promise<User> {
         console.log('create user');
-        const userId = await this.userService.create(body);
-        return userId;
+        const user = await this.userService.create(body);
+        return user;
     }
 
     @Get('email/:email')

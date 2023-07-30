@@ -8,7 +8,7 @@ export class MailerService {
 
     constructor(private readonly mailerService: NestMailerService) { }
 
-    async sendUserMagicLink(user: { email: any; username?: string; }, href: any) {
+    async sendUserLoginLink(user: { email: any; username?: string; }, href: any) {
         await this.setTransport();
 
         await this.mailerService.sendMail({
@@ -25,19 +25,19 @@ export class MailerService {
         });
     }
 
-    async sendUserConfirmation(user: any, code: string) {
+    async sendUserSignupLink(user: any, href: string) {
         await this.setTransport();
-        console.log('sendUserConfirmation', user, code);
+        console.log('sendUserConfirmation', user, href);
 
         await this.mailerService.sendMail({
             transporterName: 'gmail',
             to: user.email, // user's email address
             from: 'zafrir.dotan@gmail.com', // the sender address
             subject: 'Welcome to our site', // Subject line
-            template: './welcome', // The `.hbs` or `.pug` extension is appended automatically.
+            template: './signup', // The `.hbs` or `.pug` extension is appended automatically.
             // text: 'welcome', // plaintext body
             context: { // Data to be sent to template engine.
-                href: code,
+                href: href,
                 username: user.username,
             },
         });

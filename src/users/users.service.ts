@@ -27,10 +27,9 @@ export class UsersService {
 
     constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
-    async create(user: User): Promise<string> {
+    create(user: User): Promise<User> {
         const newUser = new this.userModel(user);
-        const res = await newUser.save();
-        return res.id;
+        return newUser.save()
     }
 
     findOneByEmail(email: string): Promise<User> {

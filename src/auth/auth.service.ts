@@ -10,10 +10,8 @@ export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) { }
 
     async validateUser(email: string): Promise<User | undefined> {
-        console.log('validateUser:', email);
 
-        const user = await this.usersService.findOneByEmail(email);
-        console.log('user:', user);
+        const user = await this.findUserByEmail(email);
 
         if (!user) {
             throw new UnauthorizedException()
@@ -22,11 +20,20 @@ export class AuthService {
         return user;
     }
 
+    findUserByEmail(email: string): Promise<User | undefined> {
+        return this.usersService.findOneByEmail(email);
+    }
+
     generateTokens(user: User) {
         const payload = { sub: user.id, email: user.email };
         return {
             access_token: this.jwtService.sign(payload),
         }
+    }
+
+    generateTokenFromMail(email: string) {
+        const payload = { email, type: 'signup' };
+        return this.jwtService.sign(payload)
     }
 
     generateTempUserToken() {
@@ -55,5 +62,9 @@ export class AuthService {
 
         const payload = this.jwtService.decode(token);
         return await this.validateUser(payload['email']);
+    }
+
+    createNewUser(name: string, email: string): Promise<User> {
+        return this.usersService.create({ email, name });
     }
 }

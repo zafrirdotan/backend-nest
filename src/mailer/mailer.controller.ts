@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { MailerService } from './mailer.service';
 
 @Controller('mailer')
@@ -14,8 +14,8 @@ export class MailerController {
     // return this.mailerService.example();
   }
 
-  @Get('template')
+  @Post('signup')
   sendTemplate(): any {
-    return this.mailerService.sendUserConfirmation({ email: 'dolev.dotan@gmail.com', username: 'Zafrir' }, '123456');
+    return this.mailerService.sendUserSignupLink({ email: 'zafrir.dotan@gmail.com', username: 'Zafrir' }, '123456');
   }
 }

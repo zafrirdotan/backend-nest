@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UsersService } from 'src/users/users.service';
 import { UsersModule } from 'src/users/users.module';
 import { MagicLoginStrategy } from './magiclogin.strategy';
+import { MagicSignupStrategy } from './magicSignup.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
@@ -19,7 +20,7 @@ import { JwtAllow3FirstStrategy } from './jwt-allow-3-first.strategy';
     }),
   }),],
   controllers: [AuthController],
-  providers: [AuthService, MagicLoginStrategy, JwtStrategy, JwtAllow3FirstStrategy, MailerService],
+  providers: [AuthService, MagicLoginStrategy, MagicSignupStrategy, JwtStrategy, JwtAllow3FirstStrategy, MailerService],
   exports: [AuthService]
 })
 export class AuthModule { }

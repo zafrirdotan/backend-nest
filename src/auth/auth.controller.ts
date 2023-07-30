@@ -1,24 +1,25 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Post, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
 import e, { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { MagicLoginStrategy } from './magiclogin.strategy';
 import { PasswordLessLoginDto } from './passwoedless-login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/user.entity';
+import { MagicSignupStrategy } from './magicSignup.strategy';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private strategy: MagicLoginStrategy) { }
+  constructor(private readonly authService: AuthService, private magicLoginStrategy: MagicLoginStrategy, private magicSignupStrategy: MagicSignupStrategy) { }
 
   @Post('login')
   login(@Req() req, @Res() res, @Body(new ValidationPipe()) body: PasswordLessLoginDto) {
     this.authService.validateUser(body.destination);
-    return this.strategy.send(req, res);
+    return this.magicLoginStrategy.send(req, res);
   }
 
   @UseGuards(AuthGuard('magiclogin'))
   @Get('login/callback')
-  callback(@Req() req, @Res() res: Response) {
+  loginCallback(@Req() req, @Res() res: Response) {
     console.log('callback');
     const token = this.authService.generateTokens(req.user);
     res.cookie('token', token, {
@@ -62,6 +63,28 @@ export class AuthController {
   logout(@Res() res) {
     res.clearCookie('token');
     res.send({ status: 'ok' });
+  }
+
+  @Post('signup')
+  signup(@Req() req, @Res() res, @Body(new ValidationPipe()) body: PasswordLessLoginDto) {
+    const user = this.authService.validateUser(body.destination);
+    if (user) {
+      throw new HttpException('User already exists', 400);
+    } else {
+      return this.magicSignupStrategy.send(req, res);
+    }
+  }
+
+  @UseGuards(AuthGuard('magicSignup'))
+  @Post('signup/callback')
+  async signupCallback(@Req() req, @Res() res: Response) {
+    const user = await this.authService.createNewUser(req.body.fullName, req.user.email);
+
+    const token = this.authService.generateTokens(user);
+    res.cookie('token', token, {
+      httpOnly: true,
+    });
+    res.send(user);
   }
 
 }
