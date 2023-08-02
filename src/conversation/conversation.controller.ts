@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service';
 import { TempUser } from 'src/auth/entitys/temp-user.entity';
 
-@Controller('conversation')
+@Controller('api/conversation')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService, private authService: AuthService) {
   }

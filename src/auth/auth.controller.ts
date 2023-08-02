@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpException, Post, Req, Res, UseGuards, ValidationPipe } from '@nestjs/common';
-import e, { Response, Request } from 'express';
+import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { MagicLoginStrategy } from './magiclogin.strategy';
 import { PasswordLessLoginDto } from './passwoedless-login.dto';
@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/user.entity';
 import { MagicSignupStrategy } from './magicSignup.strategy';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService, private magicLoginStrategy: MagicLoginStrategy, private magicSignupStrategy: MagicSignupStrategy) { }
 

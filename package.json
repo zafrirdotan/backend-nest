@@ -6,7 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "prebuild": "rimraf dist",
     "build": "nest build",
+    "build:prod": "cd ../backend-nest && npm run build && cd ../frontend-angular && ng build --output-path ../backend-nest/dist/frontend",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -29,6 +31,7 @@
     "@nestjs/mongoose": "^10.0.1",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/serve-static": "^4.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
