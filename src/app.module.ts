@@ -14,9 +14,7 @@ import { join } from 'path';
 @Module({
 
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, './', 'frontend'),
-    }),
+
     ConversationModule, ConfigModule.forRoot(), PluginModule, UsersModule, AuthModule, MailerModule, MongooseModule.forRoot(process.env.MONGO_URI)],
   controllers: [AppController],
   providers: [AppService],

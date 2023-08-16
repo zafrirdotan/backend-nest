@@ -7,8 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
-    "build:prod": "cd ../backend-nest && npm run build && cd ../frontend-angular && ng build --output-path ../backend-nest/dist/frontend",
+    "build": "nest build && cp package.json dist/ && cp Procfile dist/ && cp -r templates dist/ && cp -r .ebextensions dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
