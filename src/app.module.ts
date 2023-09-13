@@ -10,12 +10,12 @@ import { MailerModule } from './mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GroceryBotModule } from './grocery-bot/grocery-bot.module';
 
 @Module({
 
   imports: [
-
-    ConversationModule, ConfigModule.forRoot(), PluginModule, UsersModule, AuthModule, MailerModule, MongooseModule.forRoot(process.env.MONGO_URI)],
+    ConversationModule, ConfigModule.forRoot(), PluginModule, UsersModule, AuthModule, MailerModule, MongooseModule.forRoot(process.env.MONGO_URI), GroceryBotModule],
   controllers: [AppController],
   providers: [AppService],
 })

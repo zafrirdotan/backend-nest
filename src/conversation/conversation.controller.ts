@@ -1,8 +1,6 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ConversationService } from './conversation.service';
-import { ChatCompletionRequestMessage } from 'openai';
-import { Request } from 'express';
 import { CompletionBody } from './dto/completion-body.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/auth/auth.service';
@@ -13,12 +11,7 @@ export class ConversationController {
   constructor(private readonly conversationService: ConversationService, private authService: AuthService) {
   }
 
-  @Post()
-  chatCompletion(@Body() completionMessage: ChatCompletionRequestMessage[]) {
-    return this.conversationService.chatWithAI(completionMessage);
-  }
-
-  @UseGuards(AuthGuard('jwt-allow-3-first'))
+  // @UseGuards(AuthGuard('jwt-allow-3-first'))
   @Post('streaming')
   async chatCompletionStreaming(@Res() res: Response, @Body() completionBody: CompletionBody, @Req() req: Request) {
 
@@ -40,37 +33,11 @@ export class ConversationController {
     res.flushHeaders(); // flush the headers to establish SSE with client
 
     const stream = (await this.conversationService.chatCompletionStreaming(completionBody.messages));
-    stream.on('data', (data) => {
 
-      const lines = data.toString().split('\n').filter(line => line.trim() !== '');
-
-      for (const line of lines) {
-
-        const message = line.replace(/^data: /, '');
-        if (message === '[DONE]') {
-          res.end();
-          return
-        }
-        if (message) {
-          try {
-            const parsed = JSON.parse(message);
-            if (parsed?.choices && parsed.choices[0]?.delta?.content) {
-
-              res.write(parsed.choices[0].delta.content)
-            }
-          } catch (e) {
-            console.log('error in streaming chat compilation:', e)
-            console.log('line:', line)
-
-            console.log('message:', message)
-          }
-        }
-      }
-    });
-
-    stream.on('end', () => {
-      res.end();
-    });
+    for await (const part of stream) {
+      res.write(part.choices[0].delta.content || '')
+    }
+    res.end();
   }
 
   @Post('question-summery')
@@ -81,35 +48,35 @@ export class ConversationController {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders(); // flush the headers to establish SSE with client
 
-    const stream = (await this.conversationService.getCompletion(data.prompt));
-    stream.on('data', (data) => {
+    // const stream = (await this.conversationService.getCompletionSummery(data.prompt));
+    // stream.on('data', (data) => {
 
-      const lines = data.toString().split('\n').filter(line => line.trim() !== '');
-      for (const line of lines) {
-        const message = line.replace(/^data: /, '');
-        if (message === '[DONE]') {
-          res.end();
-          return
-        }
-        if (message) {
-          try {
-            const parsed = JSON.parse(message);
-            const choices = parsed?.choices;
-            if (choices && choices[0]?.text) {
+    //   const lines = data.toString().split('\n').filter(line => line.trim() !== '');
+    //   for (const line of lines) {
+    //     const message = line.replace(/^data: /, '');
+    //     if (message === '[DONE]') {
+    //       res.end();
+    //       return
+    //     }
+    //     if (message) {
+    //       try {
+    //         const parsed = JSON.parse(message);
+    //         const choices = parsed?.choices;
+    //         if (choices && choices[0]?.text) {
 
-              res.write(parsed.choices[0].text)
-            }
-          } catch (e) {
-            console.log('error in streaming compilation:', e, 'message:', message)
+    //           res.write(parsed.choices[0].text)
+    //         }
+    //       } catch (e) {
+    //         console.log('error in streaming compilation:', e, 'message:', message)
 
-          }
-        }
-      }
-    });
+    //       }
+    //     }
+    //   }
+    // });
 
-    stream.on('end', () => {
-      res.end();
-    });
+    // stream.on('end', () => {
+    //   res.end();
+    // });
 
   }
 }
