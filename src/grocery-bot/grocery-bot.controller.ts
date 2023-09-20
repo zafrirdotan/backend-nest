@@ -1,14 +1,14 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CompletionBody, GrocerySumBody } from 'src/conversation/dto/completion-body.dto';
 import e, { Response, Request } from 'express';
-import { ConversationService } from 'src/conversation/conversation.service';
 import { Subject, concatMap, delay, filter, from, fromEvent, map, of, scan } from 'rxjs';
 import { mockData } from './mock-data';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
+import { GroceryBotService } from './grocery-bot.service';
 
 @Controller('api/grocery-bot')
 export class GroceryBotController {
-    constructor(private readonly conversationService: ConversationService) { }
+    constructor(private readonly groceryBotService: GroceryBotService) { }
 
     @Post('streaming')
     async chatCompletionStreaming(@Res() res: Response, @Body() completionBody: GrocerySumBody, @Req() req: Request) {
@@ -24,16 +24,18 @@ export class GroceryBotController {
         //     { "role": "system", "content": "if someone chats about a deferent subject replay that you are only a shopping assistant" }
         // )
 
+        const cartList = completionBody.cart.map(item => {
+            return `- ${item.name} ${item.quantity} ${item.unit}`
+        });
+
         const massages: ChatCompletionMessageParam[] = [
-            { "role": "system", "content": "You are a helpful assistant for buying grocery in the supermarket." },
-            { "role": "system", "content": "if someone some one asks to add to the card always replay with a list in the requested language" },
-            { "role": "system", "content": "if someone chats about a deferent subject replay that you are only a shopping assistant" },
-            // completionMessage[completionMessage.length - 3],
-            // completionMessage[completionMessage.length - 2],
-            { "role": "user", "content": `this is the original cart: ${JSON.stringify(completionBody.cart)} .Do this: ${completionMessage[completionMessage.length - 1].content} and return regular text` },
+            { "role": "system", "content": "You are a helpful assistant for buying grocery in the supermarket. You can add, remove or clear a cart." },
+            { "role": "system", "content": `This is the cart: ${cartList}.` },
+            { "role": "system", "content": "if someone chats about a deferent subject replay that you are only a shopping assistant." },
+            { "role": "user", "content": ` ${completionMessage[completionMessage.length - 1].content}` },
         ]
 
-        const stream = (await this.conversationService.chatCompletionStreaming(massages));
+        const stream = (await this.groceryBotService.chatCompletionStreaming(massages));
 
         for await (const part of stream) {
             res.write(part.choices[0].delta.content || '')
@@ -59,7 +61,7 @@ export class GroceryBotController {
         // completionMessage.unshift({ "role": "system", "content": 'You should output strictly JSON-formatted data.' })
         // completionMessage.unshift({ "role": "system", "content": 'return me a list of grocery items in this JSON format: [{"name": "appels", "quantity": 4}].' })
 
-        const stream = (await this.conversationService.JSONStreaming(completionMessage));
+        const stream = (await this.groceryBotService.JSONStreaming(completionMessage));
 
         const stream$ = from(stream).pipe(map((part) => part.choices[0].delta.content || ''))
 
@@ -142,7 +144,7 @@ export class GroceryBotController {
             6: 'exit'
         }
         const descriptionsString = Object.values(descriptions).join('\n');
-        const completion = await this.conversationService.getDescription(completionMessage, descriptionsString);
+        const completion = await this.groceryBotService.getDescription(completionMessage, descriptionsString);
         console.log('completion', completion);
 
         return { selectedOption: completion.choices[0].message.content }
@@ -155,16 +157,27 @@ export class GroceryBotController {
         const messages = completionBody.messages;
         messages.unshift({ "role": "system", "content": 'Sum the items in all massages and Generate a JSON object that will contain grocery item in this format: [{"name": "appels", "quantity": 4}]' })
 
-        const completion = await this.conversationService.getCompletion(messages);
+        const completion = await this.groceryBotService.getCompletion(messages);
         console.log('completion.choices[0].message.content', completion.choices[0].message.content);
         return { content: completion.choices[0].message.content }
     }
 
     @Post('list-function')
     getCompletionWithFunctions(@Body() completionBody: GrocerySumBody) {
+        const massage = completionBody.messages[completionBody.messages.length - 1].content;
+        if (containsHebrew(massage)) {
+            console.log('hebrew');
+            return this.groceryBotService.editCartCompletionHebrew(completionBody.messages, completionBody.cart, completionBody.lastAction);
+        }
+        console.log('English');
 
-        return this.conversationService.sumTheCart(completionBody.messages, completionBody.cart, completionBody.lastAction);
+        // return this.conversationService.checkMessageType(completionBody.messages);
+        return this.groceryBotService.editCartCompletion(completionBody.messages, completionBody.cart, completionBody.lastAction);
     }
 
 }
 
+function containsHebrew(text) {
+    const hebrewRegex = /[\u0590-\u05FF]/;
+    return hebrewRegex.test(text);
+}

@@ -5,10 +5,11 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat';
 import { from, fromEvent } from 'rxjs';
 import { json } from 'stream/consumers';
 import { Action } from './dto/completion-body.dto';
+import { mockItems } from './mock-data';
 
 
 @Injectable()
-export class ConversationService {
+export class GroceryBotService {
 
 
     async chatCompletionStreaming(completionMessage: ChatCompletionMessageParam[]): Promise<IncomingMessage> {
@@ -119,11 +120,11 @@ export class ConversationService {
                 },
                 {
                     name: "get-added-items",
-                    description: "add to cart and gat the items that was added or removed from the original cart",
+                    description: "add or remove from cart and gat the items that was added or removed from the original cart",
                     parameters: {
                         "type": "object",
                         "properties": {
-                            "action": { "type": "string", "enum": ['add to cart', 'remove from cart', 'user asks is product available?'] },
+                            "action": { "type": "string", "enum": ['add to cart', 'remove from cart', 'user asks is product available?', 'show cart'] },
                             "list": {
                                 "type": "array",
                                 "items": {
@@ -162,16 +163,16 @@ export class ConversationService {
                         "required": ["action"],
                     },
                 },
-                {
-                    name: "get-recipe",
-                    description: "user asks for a recipe",
-                    parameters: {
-                        recipe: {
-                            "type": "string",
-                            "name": "string",
-                        }
-                    }
-                }
+                // {
+                //     name: "get-recipe",
+                //     description: "user asks for a recipe",
+                //     parameters: {
+                //         recipe: {
+                //             "type": "string",
+                //             "name": "string",
+                //         }
+                //     }
+                // }
             ]
 
 
@@ -181,9 +182,30 @@ export class ConversationService {
 
         if (responseMessage.function_call) {
 
-            console.log('responseMessage.function_call', responseMessage.function_call);
 
             const functionArgs = JSON.parse(responseMessage.function_call.arguments);
+
+            if (functionArgs.action === 'user asks is product available?' && functionArgs.list?.length > 0) {
+                const items = this.findItemInCatalog(functionArgs.list[0]?.name)
+                functionArgs.list[0].isAvailable = items.length > 0
+            }
+
+            if (['add to cart', 'add x'].includes(functionArgs.action)) {
+                console.log('functionArgs', functionArgs);
+
+                const availableItemsMap = this.findItemsInCatalog(functionArgs.list.map(item => item.name))
+                console.log('availableItemsMap', availableItemsMap);
+                functionArgs.list = functionArgs.list.map(item => {
+                    return {
+                        ...item,
+                        name: availableItemsMap[item.name][0] ? availableItemsMap[item.name][0]?.name : item.name,
+                        isAvailable: availableItemsMap[item.name].length > 0,
+                        alternatives: availableItemsMap[item.name],
+                        price: availableItemsMap[item.name][0] ? availableItemsMap[item.name][0]?.price : null,
+                    }
+                })
+
+            }
 
             return functionArgs;
         }
@@ -299,6 +321,8 @@ export class ConversationService {
 
             const functionArgs = JSON.parse(responseMessage.function_call.arguments);
 
+
+
             return functionArgs;
         }
 
@@ -319,6 +343,20 @@ export class ConversationService {
             apiKey: process.env.OPENAI_API_KEY_YOSI,
         });
 
+    }
+
+    findItemsInCatalog(itemNames: string[]) {
+        const itemsMap = {}
+
+        itemNames.forEach((name) => {
+            itemsMap[name] = this.findItemInCatalog(name)
+        })
+
+        return itemsMap;
+    }
+
+    findItemInCatalog(name: string) {
+        return mockItems.filter((item) => item.name?.toLowerCase()?.includes(name.toLowerCase()))
     }
 
 
