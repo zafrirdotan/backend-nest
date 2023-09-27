@@ -2,14 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
-import { from, fromEvent } from 'rxjs';
+import { from, fromEvent, of } from 'rxjs';
 import { json } from 'stream/consumers';
 import { Action } from './dto/completion-body.dto';
-import { mockItems } from './mock-data';
-
+import { mockData, setMockData } from './mock-data';
 
 @Injectable()
 export class GroceryBotService {
+    mockItems
+    constructor() {
+
+        // setMockData()
+
+        this.getMockItemsFromFS().then((items) => {
+            this.mockItems = items;
+        })
+    }
+
 
 
     async chatCompletionStreaming(completionMessage: ChatCompletionMessageParam[]): Promise<IncomingMessage> {
@@ -356,9 +365,30 @@ export class GroceryBotService {
     }
 
     findItemInCatalog(name: string) {
-        return mockItems.filter((item) => item.name?.toLowerCase()?.includes(name.toLowerCase()))
+        const items = this.mockItems;
+
+        return items.filter((item) => item.name?.toLowerCase()?.includes(name.toLowerCase()))
     }
 
 
+    async getMockItemsFromFS(): Promise<any[]> {
+        const fs = require('fs').promises;
 
+        // Specify the path to the JSON file
+        const filePath = './src/grocery-data/mock-db.json';
+
+        try {
+            // Read the file asynchronously
+            const data = await fs.readFile(filePath, 'utf8');
+
+            // Parse the JSON string to an object
+            const jsonObject = JSON.parse(data);
+
+            // console.log(jsonObject);
+            return jsonObject;
+        } catch (err) {
+            console.error('Error reading the file:', err);
+            return [];
+        }
+    }
 }
