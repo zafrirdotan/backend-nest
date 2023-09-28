@@ -1,12 +1,11 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { CompletionBody, GrocerySumBody } from 'src/conversation/dto/completion-body.dto';
-import e, { Response, Request } from 'express';
-import { Subject, concatMap, delay, filter, from, fromEvent, map, of, scan } from 'rxjs';
-import { mockData } from './mock-data';
+import { Response, Request } from 'express';
+import { filter, from, map } from 'rxjs';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
 import { GroceryBotService } from './grocery-bot.service';
 
-@Controller('api/grocery-bot')
+@Controller('api/grocery-bot-v1')
 export class GroceryBotController {
     constructor(private readonly groceryBotService: GroceryBotService) { }
 

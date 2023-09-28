@@ -7,4 +7,4 @@ import { GroceryBotService } from './grocery-bot.service';
   providers: [GroceryBotService],
 
 })
-export class GroceryBotModuleV1 { }
+export class GroceryBotModuleV2 { }

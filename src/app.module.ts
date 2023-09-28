@@ -8,14 +8,15 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { GroceryBotModule } from './grocery-bot/grocery-bot.module';
+import { GroceryBotModuleV2 } from './grocery-bot-v2/grocery-bot.module';
+import { GroceryBotModuleV1 } from './grocery-bot/grocery-bot.module';
 
 @Module({
 
   imports: [
-    ConversationModule, ConfigModule.forRoot(), PluginModule, UsersModule, AuthModule, MailerModule, MongooseModule.forRoot(process.env.MONGO_URI), GroceryBotModule],
+    ConversationModule, ConfigModule.forRoot(), PluginModule, UsersModule, AuthModule, MailerModule, MongooseModule.forRoot(process.env.MONGO_URI),
+    GroceryBotModuleV1,
+    GroceryBotModuleV2],
   controllers: [AppController],
   providers: [AppService],
 })
