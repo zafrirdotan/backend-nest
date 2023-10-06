@@ -1,5 +1,18 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat";
-import { type } from "os";
+export enum UserAction {
+    addToCart = 'add to cart',
+    removeFromCart = 'remove from cart',
+    addX = 'add x',
+    removeX = 'remove x',
+    clearCart = 'clear cart',
+    isProductAvailable = 'user asks is product available?',
+    howAreYou = 'user asking how are you',
+    hallo = 'user saying hallo',
+    yes = "yes",
+    no = "no",
+    showCart = 'show cart',
+    CartClearApproval = 'cart clear approval',
+}
 
 export interface CompletionBody {
     messages: ChatCompletionMessageParam[];
@@ -7,16 +20,20 @@ export interface CompletionBody {
 }
 
 export interface GrocerySumBody {
-    messages: ChatCompletionMessageParam[];
+    message: ChatCompletionMessageParam;
     cart: ICartItem[];
-    lastAction: Action;
+    lastAction: LastAction;
 
 }
 
 export interface ICartItem {
-    name: string; quantity: string, unit: string;
+    name: string;
+    quantity: number,
+    unit: string;
+    isAvailable: boolean;
+
 }
 
-export interface Action { action: string; list: ICartItem[]; }
+export interface LastAction { action: UserAction; list: ICartItem[]; }
 
 export type ActionType = 'add to cart' | 'remove from cart' | 'saying hallo' | 'something else';

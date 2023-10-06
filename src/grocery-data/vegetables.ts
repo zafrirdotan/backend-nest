@@ -23222,6 +23222,44 @@ export const vegetables = [
             "aisleName": "Refrigerated Leaves",
             "aisleSort": 5
         }
+    }, {
+        "id": 136448,
+        "searchKeywords": [],
+        "isPrivate": false,
+        "localName": "Tomato (KG)",
+        "names": {
+            "1": {
+                "short": "עגבנייה",
+            },
+            "2": {
+                "long": "Tomato",
+            },
+            "6": {
+                "short": "طماطم",
+            }
+
+        },
+        branch: {
+            regularPrice: 5.9,
+        },
+        productId: 136448,
+        barcode: "24",
+        family: {
+            names: {
+                "1": {
+                    "name": "עגבניות"
+                },
+                "2": {
+                    "name": "Tomatoes"
+                },
+                "4": {
+                    "name": "Помидоры"
+                },
+                "6": {
+                    "name": "طماطم"
+                }
+            }
+        }
     },
     {
         "supplierId": 136445,
