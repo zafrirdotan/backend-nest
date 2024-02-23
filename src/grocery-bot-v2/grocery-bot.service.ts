@@ -3,13 +3,11 @@ import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
 import { UserAction, LastAction, GrocerySumBody, ICartItem } from './dto/completion-body.dto';
 import { responseDictionary } from './crocery-bot-response-dictionary';
-import { classifiedAs, classify, getMostSimilar } from 'src/utils/cosineSimilarity';
-import * as fs from 'fs';
-import { TextToEmbed, getMockData } from './mock-data';
+import { getMostSimilar } from 'src/utils/cosineSimilarity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './entity/product.entity';
-import { MongoClient } from 'mongodb';
+import { getMockData } from './mock-data';
 
 const descriptions = {
     sayHallo: {
@@ -266,10 +264,11 @@ export class GroceryBotService {
     }
 
     async getItemsAvailabilityAndAlternatives(items) {
-        // const availableItemsMap = await this.findItemsInCatalog(items.map(item => item.name))
+        const availableItemsMap = await this.findItemsInCatalog(items.map(item => item.name))
 
-        const similarKeywordMap = await this.findCosineSimilarity(items.map(item => item.name), 2);
-        // console.log('similarKeywordMap', similarKeywordMap);
+        // const similarKeywordMap = await this.findCosineSimilarity(items.map(item => item.name), 2);
+        const similarKeywordMap = availableItemsMap
+        console.log('similarKeywordMap', similarKeywordMap);
 
         // צקיך להתאים ביםן השם עום אות גדולה לששם עם אות קטנה 
 
@@ -350,7 +349,7 @@ export class GroceryBotService {
 
         const itemsMap = {}
         itemNames.forEach((name) => {
-            itemsMap[name] = dbItems.filter((item) => item.name.toLowerCase() === name.toLowerCase());
+            itemsMap[name] = dbItems.filter((item) => item?.name?.toLowerCase() === name?.toLowerCase());
         })
         const end = Date.now();
         console.log('time find in mockdb', end - start);
