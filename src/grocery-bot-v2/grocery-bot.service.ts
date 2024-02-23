@@ -1,4 +1,4 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat';
 import {
@@ -8,11 +8,7 @@ import {
   ICartItem,
 } from './dto/completion-body.dto';
 import { responseDictionary } from './consts/response-dictionary';
-import { getMostSimilar } from 'src/utils/cosine-similarity';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Product } from './entity/product.entity';
-import { getMockData } from './mock-data';
+
 import {
   Descriptions,
   FunctionEntityTypes as OAIParam,
@@ -23,9 +19,7 @@ import { containsHebrew } from 'src/utils/language-detection';
 
 @Injectable()
 export class GroceryBotService {
-  constructor(
-    @InjectModel('Product') private readonly productModel: Model<Product>,
-  ) {}
+  constructor() {}
 
   async editCartCompletion(completionBody: GrocerySumBody) {
     const { message, cart, lastAction } = completionBody;
@@ -382,133 +376,6 @@ export class GroceryBotService {
 
       // console.log(jsonObject);
       return jsonObject;
-    } catch (err) {
-      console.error('Error reading the file:', err);
-      return [];
-    }
-  }
-
-  async getEmbeddingMap() {
-    const fs = require('fs').promises;
-    const filePath = './src/grocery-bot-v2/temp-embeddings.json';
-    try {
-      // Read the file asynchronously
-      const data = await fs.readFile(filePath, 'utf8');
-
-      // Parse the JSON string to an object
-      const jsonObject = JSON.parse(data);
-
-      // console.log(jsonObject);
-      return jsonObject;
-    } catch (err) {
-      console.error('Error reading the file:', err);
-      return [];
-    }
-  }
-
-  async findCosineSimilarity(prompt: string[], resultCount: number = 3) {
-    const embeddingMap = await this.getEmbeddingProductsMap();
-    const embedding = await this.getOpenAI().embeddings.create({
-      model: 'text-embedding-ada-002',
-      input: prompt,
-    });
-    const start = Date.now();
-
-    const classifiedAsMap = {};
-    prompt.forEach((item, index) => {
-      classifiedAsMap[item] = getMostSimilar(
-        embedding.data[index].embedding,
-        embeddingMap,
-        resultCount,
-      );
-    });
-
-    const end = Date.now();
-    console.log('time', end - start);
-    return classifiedAsMap;
-  }
-
-  async getEmbeddingProductsMap() {
-    const fs = require('fs').promises;
-    const filePath = './src/grocery-data/mock-embedding-db.json';
-    try {
-      // Read the file asynchronously
-      const data = await fs.readFile(filePath, 'utf8');
-
-      // Parse the JSON string to an object
-      const jsonObject = JSON.parse(data);
-
-      // console.log(jsonObject);
-      return jsonObject;
-    } catch (err) {
-      console.error('Error reading the file:', err);
-      return [];
-    }
-  }
-
-  async embedding() {
-    const mockData = [...getMockData()];
-    const embeddingList = mockData.map((item) => item.name);
-    // const embedding = await this.getOpenAI().embeddings.create({
-    //     model: "text-embedding-ada-002",
-    //     input: embeddingList,
-    // });
-
-    // const embeddedItems = mockData.map((item, index) => {
-    //     return {
-    //         ...item,
-    //         embedding: embedding.data[index].embedding,
-    //     }
-    // })
-    // console.log('embeddedItems', embeddedItems.length);
-
-    // const document = await findSimilarDocuments()
-    // const document = await findSimilarDocuments(embedding.data[0].embedding)
-
-    // const embeddingMap = {}
-    // embeddingList.forEach((item, index) => {
-    //     embeddingMap[item] = embedding.data[index].embedding;
-    // })
-    // fs.writeFile('./src/grocery-data/mock-db.json', JSON.stringify(embeddedItems), function (err) {
-    //     if (err) return console.log(err);
-    //     //         console.log('Hello World > helloworld.txt');
-    // });
-
-    // return embedding.data;
-  }
-
-  async setEmbeddingProductsMap() {
-    const fs = require('fs').promises;
-    const filePath = './src/grocery-data/mock-db.json';
-    try {
-      // Read the file asynchronously
-      const data = await fs.readFile(filePath, 'utf8');
-
-      // Parse the JSON string to an object
-      const products = JSON.parse(data);
-      const searchKeywords = products
-        .map((product) => product.name?.toLowerCase())
-        .filter((item) => item);
-
-      console.log('searchKeywords', searchKeywords);
-
-      const embedding = await this.getOpenAI().embeddings.create({
-        model: 'text-embedding-ada-002',
-        input: searchKeywords,
-      });
-
-      const embeddingMap = {};
-      searchKeywords.forEach((item, index) => {
-        embeddingMap[item] = embedding.data[index].embedding;
-      });
-
-      fs.writeFile(
-        './src/grocery-data/mock-embedding-db.json',
-        JSON.stringify(embeddingMap),
-        function (err) {
-          if (err) return console.log(err);
-        },
-      );
     } catch (err) {
       console.error('Error reading the file:', err);
       return [];

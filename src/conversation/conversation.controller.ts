@@ -8,21 +8,31 @@ import { TempUser } from 'src/auth/entitys/temp-user.entity';
 
 @Controller('api/conversation')
 export class ConversationController {
-  constructor(private readonly conversationService: ConversationService, private authService: AuthService) {
-  }
+  constructor(
+    private readonly conversationService: ConversationService,
+    private authService: AuthService,
+  ) {}
 
   // @UseGuards(AuthGuard('jwt-allow-3-first'))
   @Post('streaming')
-  async chatCompletionStreaming(@Res() res: Response, @Body() completionBody: CompletionBody, @Req() req: Request) {
-
+  async chatCompletionStreaming(
+    @Res() res: Response,
+    @Body() completionBody: CompletionBody,
+    @Req() req: Request,
+  ) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');
 
-    if (req.user?.hasOwnProperty('type') && (req.user as TempUser)?.type === 'temp_user') {
+    if (
+      req.user?.hasOwnProperty('type') &&
+      (req.user as TempUser)?.type === 'temp_user'
+    ) {
       const tempUser = req.user as TempUser;
       if (tempUser?.type === 'temp_user') {
-        const newTempToken = await this.authService.refreshTempUserToken(tempUser);
+        const newTempToken = await this.authService.refreshTempUserToken(
+          tempUser,
+        );
         res.cookie('token', newTempToken, {
           httpOnly: true,
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
@@ -32,10 +42,12 @@ export class ConversationController {
 
     res.flushHeaders(); // flush the headers to establish SSE with client
 
-    const stream = (await this.conversationService.chatCompletionStreaming(completionBody.messages));
+    const stream = await this.conversationService.chatCompletionStreaming(
+      completionBody.messages,
+    );
 
     for await (const part of stream) {
-      res.write(part.choices[0].delta.content || '')
+      res.write(part.choices[0].delta.content || '');
     }
     res.end();
   }
@@ -47,36 +59,5 @@ export class ConversationController {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders(); // flush the headers to establish SSE with client
-
-    // const stream = (await this.conversationService.getCompletionSummery(data.prompt));
-    // stream.on('data', (data) => {
-
-    //   const lines = data.toString().split('\n').filter(line => line.trim() !== '');
-    //   for (const line of lines) {
-    //     const message = line.replace(/^data: /, '');
-    //     if (message === '[DONE]') {
-    //       res.end();
-    //       return
-    //     }
-    //     if (message) {
-    //       try {
-    //         const parsed = JSON.parse(message);
-    //         const choices = parsed?.choices;
-    //         if (choices && choices[0]?.text) {
-
-    //           res.write(parsed.choices[0].text)
-    //         }
-    //       } catch (e) {
-    //         console.log('error in streaming compilation:', e, 'message:', message)
-
-    //       }
-    //     }
-    //   }
-    // });
-
-    // stream.on('end', () => {
-    //   res.end();
-    // });
-
   }
 }
