@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import OpenAI from 'openai';
-import { getMockData } from 'src/grocery-bot-v2/mock-data';
+import { getMockData } from 'src/grocery-bot-v2/mock-data/mock-data';
 import { getMostSimilar } from 'src/utils/cosine-similarity';
 
 @Injectable()
@@ -144,3 +144,48 @@ export class EmbeddingService {
     });
   }
 }
+
+export const TextToEmbed = [
+  'hallo',
+  'how are you',
+  'add to cart',
+  'remove from cart',
+  'show me the cart',
+  'clear the cart',
+  'add x more',
+  'remove x more',
+  'grocery list',
+  // "yes",
+  // "no",
+  'is the product available',
+  'greetings',
+  "what's up",
+  'please add this to my cart',
+  "I'd like to delete this from my cart",
+  "can you show me what's in my cart",
+  'empty my cart',
+  'put more of this in my cart',
+  'do you have [product name] in stock',
+  'agree',
+  'decline',
+  'is this in stock',
+  'can I purchase this item',
+  'check out',
+  'proceed to payment',
+  'is there a discount on this item',
+  'search for [product name]',
+  'show me similar items',
+  'can I return this item',
+  'what is the return policy',
+  'track my order',
+  'update my shipping information',
+  'is this item on sale',
+  'apply coupon code',
+  'is there a warranty on this item',
+  'how much does this cost',
+  'what are the payment options',
+  'cancel my order',
+  'help me',
+  'what are the shipping options',
+  'update my billing information',
+];
