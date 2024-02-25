@@ -365,7 +365,7 @@ export class GroceryBotService {
     const fs = require('fs').promises;
 
     // Specify the path to the JSON file
-    const filePath = './src/grocery-data/mock-db.json';
+    const filePath = 'src/grocery-bot-v2/mock-data/mock-db.json';
 
     try {
       // Read the file asynchronously
