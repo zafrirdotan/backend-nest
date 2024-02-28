@@ -7,7 +7,7 @@ import { PluginModule } from './plugin/plugin.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
-import { MongooseModule } from '@nestjs/mongoose';
+// import { MongooseModule } from '@nestjs/mongoose';
 import { GroceryBotModuleV2 } from './grocery-bot-v2/grocery-bot.module';
 
 @Module({
@@ -18,9 +18,9 @@ import { GroceryBotModuleV2 } from './grocery-bot-v2/grocery-bot.module';
     UsersModule,
     AuthModule,
     MailerModule,
-    MongooseModule.forRoot(
-      process.env.MONGO_URI || 'mongodb://localhost:27017/grocery-bot',
-    ),
+    // MongooseModule.forRoot(
+    //   process.env.MONGO_URI || 'mongodb://localhost:27017/grocery-bot',
+    // ),
     GroceryBotModuleV2,
   ],
   controllers: [AppController],

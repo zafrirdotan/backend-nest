@@ -6,23 +6,20 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersService {
+  readonly tempUsers: TempUser[] = [];
 
-    readonly tempUsers: TempUser[] = [];
+  // constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
-    constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
+  // create(user: User): Promise<User> {
+  //     const newUser = new this.userModel(user);
+  //     return newUser.save()
+  // }
 
-    create(user: User): Promise<User> {
-        const newUser = new this.userModel(user);
-        return newUser.save()
-    }
+  findOneByEmail(email: string): Promise<User> {
+    return this.userModel.findOne({ email: email });
+  }
 
-    findOneByEmail(email: string): Promise<User> {
-        return this.userModel.findOne({ email: email });
-    }
-
-    async findAll(): Promise<User[]> {
-        return this.userModel.find().exec();
-    }
-
-
+  // async findAll(): Promise<User[]> {
+  //     return this.userModel.find().exec();
+  // }
 }
