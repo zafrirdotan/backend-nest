@@ -22,15 +22,18 @@ export const responseDictionary: Record<
     en: (availableItems, unavailableItems) => {
       if (availableItems?.length) {
         return `Sure! I have added the flowing items to your cart ${availableItems?.map(
-          (item: any) => `\n- ${item.quantity} ${item.unit} ${item.name}`,
+          (item: any) =>
+            `\n- ${item.quantity} ${item.unit} ${item.name} ${
+              item.emoji || ''
+            } for ${item.price} $`,
         )}
-                ${
-                  unavailableItems?.length
-                    ? `\nbut I could not find the following items ${unavailableItems.map(
-                        (item: any) => `\n- ${item.name}`,
-                      )}`
-                    : ''
-                }`;
+          ${
+            unavailableItems?.length
+              ? `\nbut I could not find the following items ${unavailableItems.map(
+                  (item: any) => `\n- ${item.name}`,
+                )}`
+              : ''
+          }`;
       } else if (unavailableItems?.length) {
         return `Sorry, I could not find the following items ${unavailableItems.map(
           (item: any) => `\n- ${item.name}`,
@@ -41,7 +44,7 @@ export const responseDictionary: Record<
   },
   removingItemsFromCart: {
     he: () => 'הפרטים הוסרו מהעגלה שלך',
-    en: () => 'Sure! I have removed the items to your cart!',
+    en: () => 'Sure! I have removed the items from your cart!',
   },
   addingX: {
     he: (action: any) =>
@@ -75,13 +78,24 @@ export const responseDictionary: Record<
   },
   clearCart: {
     he: () => 'האם אתה בטוח שברצונך לרוקן את העגלה שלך?',
-    en: () => 'Are you shore you want to clear your cart?',
+    en: () => 'Are you sure you want to clear your cart?',
+  },
+  cartCleared: {
+    he: () => 'העגלה רוקנה',
+    en: () => 'Your cart has been cleared',
   },
   isProductAvailable: {
-    en: (action: any) =>
-      `The product ${action?.list[0]?.name} is ${
-        action?.list[0]?.isAvailable ? 'available' : 'not available'
-      }`,
+    en: (productName: string, items) => {
+      if (items?.length) {
+        return `We have a verity of ${productName}. ${items.map((item) => {
+          return `\n- ${item.name} ${item.brand} ${item.price} $`;
+        })}
+      \n Do you want to add one of them to your cart?`;
+      } else {
+        return `Sorry, I didn't find ${productName}.
+      \n Would you like anything else?`;
+      }
+    },
     he: (action: any) =>
       `המוצר ${action?.list[0]?.name} ${
         action?.list[0]?.isAvailable ? 'זמין' : 'לא זמין'
@@ -101,6 +115,7 @@ enum ResponseDictionary {
   showCart = 'showCart',
   clearCart = 'clearCart',
   isProductAvailable = 'isProductAvailable',
+  cartCleared = 'cartCleared',
 }
 
 export enum Language {

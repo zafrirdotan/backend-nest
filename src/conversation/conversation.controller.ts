@@ -1,16 +1,23 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { ConversationService } from './conversation.service';
 import { CompletionBody } from './dto/completion-body.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from 'src/auth/auth.service';
-import { TempUser } from 'src/auth/entitys/temp-user.entity';
+// import { AuthGuard } from '@nestjs/passport';
+// import { AuthService } from 'src/auth/auth.service';
+// import { TempUser } from 'src/auth/entitys/temp-user.entity';
 
 @Controller('api/conversation')
 export class ConversationController {
   constructor(
-    private readonly conversationService: ConversationService,
-    private authService: AuthService,
+    private readonly conversationService: ConversationService, // private authService: AuthService,
   ) {}
 
   // @UseGuards(AuthGuard('jwt-allow-3-first'))
@@ -23,22 +30,23 @@ export class ConversationController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');
+    console.log('completionBody', completionBody);
 
-    if (
-      req.user?.hasOwnProperty('type') &&
-      (req.user as TempUser)?.type === 'temp_user'
-    ) {
-      const tempUser = req.user as TempUser;
-      if (tempUser?.type === 'temp_user') {
-        const newTempToken = await this.authService.refreshTempUserToken(
-          tempUser,
-        );
-        res.cookie('token', newTempToken, {
-          httpOnly: true,
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
-        });
-      }
-    }
+    // if (
+    //   req.user?.hasOwnProperty('type') &&
+    //   (req.user as TempUser)?.type === 'temp_user'
+    // ) {
+    //   const tempUser = req.user as TempUser;
+    //   if (tempUser?.type === 'temp_user') {
+    //     const newTempToken = await this.authService.refreshTempUserToken(
+    //       tempUser,
+    //     );
+    //     res.cookie('token', newTempToken, {
+    //       httpOnly: true,
+    //       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+    //     });
+    //   }
+    // }
 
     res.flushHeaders(); // flush the headers to establish SSE with client
 

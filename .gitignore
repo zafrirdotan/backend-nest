@@ -1,7 +1,10 @@
 # compiled output
 /dist
 /node_modules
+<<<<<<< HEAD
 dist.zip
+=======
+>>>>>>> 757c4fa (restart-commit)
 
 # Logs
 logs
